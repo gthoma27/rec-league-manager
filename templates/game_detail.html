@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}Game {{ game.game_id }}{% endblock %}
+{% block content %}
+<h1>Game {{ game.game_id }}: {{ game.home_team }} vs {{ game.away_team }}</h1>
+<p class="muted">{{ game.season }} | {{ game.division }} division</p>
+
+<div class="box">
+  <dl class="details">
+    <dt>When</dt><dd>{{ game.slot_date|nice_date }} at {{ game.start_time }}</dd>
+    <dt>Where</dt><dd>{{ game.venue }}, {{ game.address }}</dd>
+    <dt>Home</dt><dd><a href="{{ url_for('team_detail', team_id=game.home_team_id) }}">{{ game.home_team }}</a></dd>
+    <dt>Away</dt><dd><a href="{{ url_for('team_detail', team_id=game.away_team_id) }}">{{ game.away_team }}</a></dd>
+    {% if game.status == 'completed' %}
+    <dt>Final score</dt><dd>{{ game.home_team }} {{ game.home_score }}, {{ game.away_team }} {{ game.away_score }}</dd>
+    {% else %}
+    <dt>Status</dt><dd>Upcoming</dd>
+    {% endif %}
+  </dl>
+  {% if game.status == 'scheduled' %}
+  <div class="actions">
+    <a class="button" href="{{ url_for('game_result', game_id=game.game_id) }}">Enter final score</a>
+    <a class="button" href="{{ url_for('game_change', game_id=game.game_id) }}">Reschedule or cancel</a>
+  </div>
+  {% endif %}
+</div>
+
+<h2>Referees</h2>
+{% if refs %}
+<table>
+  <tr><th>Referee</th><th>Role</th></tr>
+  {% for r in refs %}
+  <tr><td>{{ r.first_name }} {{ r.last_name }}</td><td>{{ r.role|capitalize }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="warn">No referee assigned yet.</p>
+{% endif %}
+
+{% if game.status == 'scheduled' %}
+<form method="post" action="{{ url_for('game_assign_referee', game_id=game.game_id) }}" class="inline">
+  <div>
+    <label for="referee_id">Assign a referee</label>
+    <select id="referee_id" name="referee_id">
+      <option value="">Choose a referee</option>
+      {% for r in all_refs %}
+      <option value="{{ r.referee_id }}" {% if form.get('referee_id') == r.referee_id|string %}selected{% endif %}>{{ r.last_name }}, {{ r.first_name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="role">Role</label>
+    <select id="role" name="role">
+      {% for role in roles %}
+      <option value="{{ role }}" {% if form.get('role') == role %}selected{% endif %}>{{ role|capitalize }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit">Assign</button>
+</form>
+{% endif %}
+
+{% if game.status == 'completed' %}
+<h2>Player stats</h2>
+{% for team_id, team_name in [(game.home_team_id, game.home_team), (game.away_team_id, game.away_team)] %}
+<h3>{{ team_name }}</h3>
+<table>
+  <tr><th class="num">#</th><th>Player</th><th class="num">Goals</th><th class="num">Assists</th><th class="num">Fouls</th></tr>
+  {% for p in box_score if p.team_id == team_id %}
+  <tr>
+    <td class="num">{{ p.jersey_number }}</td>
+    <td><a href="{{ url_for('player_detail', player_id=p.player_id) }}">{{ p.first_name }} {{ p.last_name }}</a></td>
+    <td class="num">{{ p.goals }}</td>
+    <td class="num">{{ p.assists }}</td>
+    <td class="num">{{ p.fouls }}</td>
+  </tr>
+  {% else %}
+  <tr><td colspan="5">No stats entered.</td></tr>
+  {% endfor %}
+</table>
+{% endfor %}
+{% endif %}
+{% endblock %}

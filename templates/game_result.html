@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Final score for game {{ game.game_id }}{% endblock %}
+{% block content %}
+{# One row per player. On the first visit everyone is marked as played with 0s.
+   After a failed save, the boxes keep what was typed. #}
+{% macro roster_rows(roster) %}
+  {% for p in roster %}
+  {% set pid = p.player_id|string %}
+  <tr>
+    <td class="num">{{ p.jersey_number }}</td>
+    <td>{{ p.first_name }} {{ p.last_name }}</td>
+    <td><input type="checkbox" name="played_{{ pid }}" value="1" aria-label="{{ p.first_name }} {{ p.last_name }} played"
+               {% if form is none or form.get('played_' ~ pid) %}checked{% endif %}></td>
+    {% for stat in stat_fields %}
+    <td><input class="small" name="{{ stat }}_{{ pid }}" inputmode="numeric" aria-label="{{ p.first_name }} {{ p.last_name }} {{ stat }}"
+               value="{{ '0' if form is none else form.get(stat ~ '_' ~ pid, '') }}"></td>
+    {% endfor %}
+  </tr>
+  {% else %}
+  <tr><td colspan="6">No players on this roster.</td></tr>
+  {% endfor %}
+{% endmacro %}
+
+<h1>Enter final score for game {{ game.game_id }}</h1>
+<p class="muted">{{ game.home_team }} vs {{ game.away_team }} | {{ game.slot_date|nice_date }} at {{ game.start_time }}, {{ game.venue }} |
+  <a href="{{ url_for('game_detail', game_id=game.game_id) }}">back to game</a></p>
+
+<form method="post" action="{{ url_for('game_result', game_id=game.game_id) }}">
+  <div class="box">
+    <h2>Final score</h2>
+    <div class="inline" style="display:flex; gap:1.5rem; flex-wrap:wrap;">
+      <div>
+        <label for="home_score">{{ game.home_team }} (home)</label>
+        <input id="home_score" name="home_score" class="small" inputmode="numeric" value="{{ form.get('home_score', '') if form else '' }}">
+      </div>
+      <div>
+        <label for="away_score">{{ game.away_team }} (away)</label>
+        <input id="away_score" name="away_score" class="small" inputmode="numeric" value="{{ form.get('away_score', '') if form else '' }}">
+      </div>
+    </div>
+  </div>
+
+  <p class="muted">Untick anyone who didn't play. Each team's goals have to add up to its score,
+     and a team can't have more assists than goals. The score and all the stats are saved together,
+     so if anything is wrong, nothing is saved.</p>
+
+  {% for team_name, roster in [(game.home_team, home_roster), (game.away_team, away_roster)] %}
+  <h2>{{ team_name }}</h2>
+  <table>
+    <tr><th class="num">#</th><th>Player</th><th>Played</th><th>Goals</th><th>Assists</th><th>Fouls</th></tr>
+    {{ roster_rows(roster) }}
+  </table>
+  {% endfor %}
+
+  <button type="submit">Save final score and stats</button>
+</form>
+{% endblock %}

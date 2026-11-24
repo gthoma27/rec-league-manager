@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Reschedule or cancel game {{ game.game_id }}{% endblock %}
+{% block content %}
+<h1>Reschedule or cancel game {{ game.game_id }}</h1>
+<p class="muted">{{ game.home_team }} vs {{ game.away_team }} | now {{ game.slot_date|nice_date }} at {{ game.start_time }}, {{ game.venue }} |
+  <a href="{{ url_for('game_detail', game_id=game.game_id) }}">back to game</a></p>
+
+<div class="box">
+  <h2>Reschedule</h2>
+  {% if slots %}
+  <form method="post" action="{{ url_for('game_reschedule', game_id=game.game_id) }}">
+    <div class="field">
+      <label for="slot_id">New time slot</label>
+      <select id="slot_id" name="slot_id">
+        <option value="">Choose an open slot</option>
+        {% for s in slots %}
+        <option value="{{ s.slot_id }}" {% if form.get('slot_id') == s.slot_id|string %}selected{% endif %}>{{ s.slot_date|nice_date }} at {{ s.start_time }}, {{ s.venue }}</option>
+        {% endfor %}
+      </select>
+      <div class="muted">Open slots during the {{ game.season }} season. The app also checks that neither team, and none of their players, already has a game at that time.</div>
+    </div>
+    <button type="submit">Move game</button>
+  </form>
+  {% else %}
+  <p>There are no open time slots left in the {{ game.season }} season.</p>
+  {% endif %}
+</div>
+
+<div class="box">
+  <h2>Cancel</h2>
+  <p>Canceling deletes the game and its referee assignments, and opens up its time slot. This can't be undone.</p>
+  <form method="post" action="{{ url_for('game_cancel', game_id=game.game_id) }}">
+    <div class="field">
+      <input type="checkbox" id="confirm" name="confirm" value="1">
+      <label class="check" for="confirm">Yes, cancel game {{ game.game_id }}</label>
+    </div>
+    <button type="submit" class="danger">Cancel game</button>
+  </form>
+</div>
+{% endblock %}

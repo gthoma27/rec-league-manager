@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+{% block title %}Games{% endblock %}
+{% block content %}
+<h1>Games</h1>
+<form method="get" action="{{ url_for('games') }}" class="inline">
+  <div>
+    <label for="season_id">Season</label>
+    <select id="season_id" name="season_id">
+      {% for s in seasons %}
+      <option value="{{ s.season_id }}" {% if season and s.season_id == season.season_id %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="status">Status</label>
+    <select id="status" name="status">
+      <option value="" {% if not status %}selected{% endif %}>All games</option>
+      <option value="scheduled" {% if status == 'scheduled' %}selected{% endif %}>Upcoming</option>
+      <option value="completed" {% if status == 'completed' %}selected{% endif %}>Completed</option>
+    </select>
+  </div>
+  <div>
+    <input type="checkbox" id="needs_ref" name="needs_ref" value="1" {% if needs_ref %}checked{% endif %}>
+    <label class="check" for="needs_ref">Only upcoming games with no referee</label>
+  </div>
+  <button type="submit">Show games</button>
+</form>
+
+{% if season %}
+  {% if games %}
+  <table>
+    <tr><th>Game</th><th>Date</th><th>Time</th><th>Venue</th><th>Division</th><th>Home</th><th>Away</th><th>Result</th><th class="num">Refs</th></tr>
+    {% for g in games %}
+    <tr>
+      <td><a href="{{ url_for('game_detail', game_id=g.game_id) }}">Game {{ g.game_id }}</a></td>
+      <td>{{ g.slot_date|nice_date }}</td>
+      <td>{{ g.start_time }}</td>
+      <td>{{ g.venue }}</td>
+      <td>{{ g.division }}</td>
+      <td>{{ g.home_team }}</td>
+      <td>{{ g.away_team }}</td>
+      <td>{% if g.status == 'completed' %}{{ g.home_score }} - {{ g.away_score }}{% else %}Upcoming{% endif %}</td>
+      <td class="num {% if g.status == 'scheduled' and g.ref_count == 0 %}warn{% endif %}">{{ g.ref_count }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="muted">Open an upcoming game to enter its final score, reschedule or cancel it, or assign a referee.</p>
+  {% else %}
+  <p>No games match these filters.</p>
+  {% endif %}
+{% else %}
+<p>There are no seasons in the database yet.</p>
+{% endif %}
+{% endblock %}

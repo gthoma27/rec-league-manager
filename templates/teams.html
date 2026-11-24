@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block title %}Teams{% endblock %}
+{% block content %}
+<h1>Teams</h1>
+<form method="get" action="{{ url_for('teams') }}" class="inline">
+  <div>
+    <label for="season_id">Season</label>
+    <select id="season_id" name="season_id">
+      {% for s in seasons %}
+      <option value="{{ s.season_id }}" {% if season and s.season_id == season.season_id %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit">Show teams</button>
+</form>
+
+{% if season %}
+  {% if teams %}
+  <table>
+    <tr><th>Division</th><th>Team</th><th class="num">Players</th><th>Captain</th></tr>
+    {% for t in teams %}
+    <tr>
+      <td>{{ t.division }}</td>
+      <td><a href="{{ url_for('team_detail', team_id=t.team_id) }}">{{ t.team }}</a></td>
+      <td class="num">{{ t.player_count }}</td>
+      <td>{{ t.captain or 'none yet' }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  <p class="muted">Click a team to see its roster and schedule, or to add a player.</p>
+  {% else %}
+  <p>{{ season.name }} has no teams yet.</p>
+  {% endif %}
+{% else %}
+<p>There are no seasons in the database yet.</p>
+{% endif %}
+{% endblock %}

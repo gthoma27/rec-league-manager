@@ -1,0 +1,42 @@
+{% extends 'base.html' %}
+{% block title %}{{ player.first_name }} {{ player.last_name }}{% endblock %}
+{% block content %}
+<h1>{{ player.first_name }} {{ player.last_name }}</h1>
+<p class="muted">{{ player.email }} | {{ player.phone or 'no phone on file' }}</p>
+
+<h2>Teams</h2>
+{% if teams %}
+<table>
+  <tr><th>Season</th><th>Division</th><th>Team</th><th class="num">Jersey</th><th>Captain</th></tr>
+  {% for t in teams %}
+  <tr>
+    <td>{{ t.season }}</td>
+    <td>{{ t.division }}</td>
+    <td><a href="{{ url_for('team_detail', team_id=t.team_id) }}">{{ t.team }}</a></td>
+    <td class="num">{{ t.jersey_number }}</td>
+    <td>{{ 'Yes' if t.is_captain else '' }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>Not on any team yet.</p>
+{% endif %}
+
+<h2>Stats by season</h2>
+{% if stats %}
+<table>
+  <tr><th>Season</th><th class="num">Games played</th><th class="num">Goals</th><th class="num">Assists</th><th class="num">Fouls</th></tr>
+  {% for s in stats %}
+  <tr>
+    <td>{{ s.season }}</td>
+    <td class="num">{{ s.games_played }}</td>
+    <td class="num">{{ s.goals }}</td>
+    <td class="num">{{ s.assists }}</td>
+    <td class="num">{{ s.fouls }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No game stats yet.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,38 @@
+{% extends 'base.html' %}
+{% block title %}Add player to {{ team.name }}{% endblock %}
+{% block content %}
+<h1>Add a player to {{ team.name }}</h1>
+<p class="muted">{{ team.season }} | {{ team.division }} division |
+  <a href="{{ url_for('team_detail', team_id=team.team_id) }}">back to team</a></p>
+
+<div class="box">
+{% if players %}
+<form method="post" action="{{ url_for('roster_add', team_id=team.team_id) }}">
+  <div class="field">
+    <label for="player_id">Player</label>
+    <select id="player_id" name="player_id">
+      <option value="">Choose a player</option>
+      {% for p in players %}
+      <option value="{{ p.player_id }}" {% if form.get('player_id') == p.player_id|string %}selected{% endif %}>{{ p.last_name }}, {{ p.first_name }} ({{ p.email }})</option>
+      {% endfor %}
+    </select>
+    <div class="muted">Only players who aren't already on a team in this division are listed.</div>
+  </div>
+  <div class="field">
+    <label for="jersey_number">Jersey number (0 to 99)</label>
+    <input id="jersey_number" name="jersey_number" class="small" inputmode="numeric" value="{{ form.get('jersey_number', '') }}">
+    {% if roster %}
+    <div class="muted">Already taken on this team: {{ roster|map(attribute='jersey_number')|join(', ') }}</div>
+    {% endif %}
+  </div>
+  <div class="field">
+    <input type="checkbox" id="is_captain" name="is_captain" value="1" {% if form.get('is_captain') %}checked{% endif %}>
+    <label class="check" for="is_captain">Make this player the team captain</label>
+  </div>
+  <button type="submit">Add to roster</button>
+</form>
+{% else %}
+<p>Every player in the league is already on a team in this division.</p>
+{% endif %}
+</div>
+{% endblock %}

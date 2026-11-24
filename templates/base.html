@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Home{% endblock %} | Rec League Manager</title>
+  <style>
+    body { margin: 0; font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+           color: #1f2933; background: #f5f6f8; line-height: 1.45; }
+    header { background: #1f4e3d; color: #fff; padding: 0.7rem 1.5rem;
+             display: flex; flex-wrap: wrap; gap: 0.5rem 2rem; align-items: center; }
+    header a { color: #fff; text-decoration: none; }
+    header a:hover { text-decoration: underline; }
+    .brand { font-weight: 700; font-size: 1.1rem; }
+    nav { display: flex; flex-wrap: wrap; gap: 1.25rem; }
+    main { max-width: 1040px; margin: 1.5rem auto 3rem; padding: 0 1.5rem; }
+    h1 { font-size: 1.5rem; margin: 0 0 0.25rem; }
+    h2 { font-size: 1.15rem; margin: 1.75rem 0 0.5rem; }
+    a { color: #1d5fa8; }
+    .muted { color: #5f6b7a; }
+    .box { background: #fff; border: 1px solid #dfe3e8; border-radius: 6px; padding: 1rem 1.25rem; margin: 1rem 0; }
+    .box h2:first-child { margin-top: 0; }
+    table { border-collapse: collapse; width: 100%; background: #fff; margin: 0.5rem 0 1rem; }
+    th, td { text-align: left; padding: 0.4rem 0.6rem; border-bottom: 1px solid #e4e7eb; vertical-align: top; }
+    th { background: #eef1f4; font-weight: 600; }
+    .num { text-align: right; }
+    .flash, .errors { border-radius: 6px; padding: 0.6rem 0.9rem; margin: 0 0 1rem; }
+    .flash.success { background: #e4f5ea; border: 1px solid #9fd6b0; }
+    .flash.error, .errors { background: #fdeceb; border: 1px solid #efaaa5; }
+    .errors ul { margin: 0.25rem 0 0; padding-left: 1.25rem; }
+    form.inline { display: flex; flex-wrap: wrap; gap: 0.75rem 1rem; align-items: flex-end; margin: 0.75rem 0; }
+    .field { margin-bottom: 0.9rem; }
+    label { display: block; font-weight: 600; margin-bottom: 0.2rem; }
+    label.check { display: inline; font-weight: normal; }
+    input, select, button { font: inherit; padding: 0.35rem 0.5rem; }
+    input.small { width: 3.5rem; }
+    button, .button { background: #1f4e3d; color: #fff; border: 0; border-radius: 4px;
+                      padding: 0.45rem 0.95rem; cursor: pointer; text-decoration: none; display: inline-block; }
+    button.danger { background: #b42318; }
+    .actions { display: flex; flex-wrap: wrap; gap: 0.6rem; margin: 0.75rem 0; }
+    .warn { color: #b42318; font-weight: 600; }
+    dl.details { display: grid; grid-template-columns: max-content 1fr; gap: 0.3rem 1.25rem; margin: 0; }
+    dl.details dt { font-weight: 600; }
+    dl.details dd { margin: 0; }
+  </style>
+</head>
+<body>
+<header>
+  <a class="brand" href="{{ url_for('home') }}">Rec League Manager</a>
+  <nav>
+    <a href="{{ url_for('players') }}">Players</a>
+    <a href="{{ url_for('teams') }}">Teams</a>
+    <a href="{{ url_for('games') }}">Games</a>
+    <a href="{{ url_for('reports') }}">Reports</a>
+    <a href="{{ url_for('game_new') }}">Schedule a game</a>
+  </nav>
+</header>
+<main>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for category, message in messages %}
+      <div class="flash {{ category }}">{{ message }}</div>
+    {% endfor %}
+  {% endwith %}
+  {% if errors %}
+    <div class="errors" role="alert">
+      <strong>{{ 'Please fix this:' if errors|length == 1 else 'Please fix these:' }}</strong>
+      <ul>{% for message in errors %}<li>{{ message }}</li>{% endfor %}</ul>
+    </div>
+  {% endif %}
+  {% block content %}{% endblock %}
+</main>
+</body>
+</html>

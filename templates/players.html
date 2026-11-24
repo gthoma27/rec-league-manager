@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% block title %}Players{% endblock %}
+{% block content %}
+<h1>Players</h1>
+<form method="get" action="{{ url_for('players') }}" class="inline">
+  <div>
+    <label for="q">Name or email</label>
+    <input id="q" name="q" value="{{ q }}" size="30" placeholder="for example: chen">
+  </div>
+  <button type="submit">Search</button>
+  {% if q %}<a href="{{ url_for('players') }}">Show all players</a>{% endif %}
+</form>
+
+{% if not errors %}
+  <p class="muted">
+    {{ players|length }} player{{ '' if players|length == 1 else 's' }}{% if q %} matching "{{ q }}"{% endif %}.
+  </p>
+  {% if players %}
+  <table>
+    <tr><th>Name</th><th>Email</th><th>Phone</th></tr>
+    {% for p in players %}
+    <tr>
+      <td><a href="{{ url_for('player_detail', player_id=p.player_id) }}">{{ p.first_name }} {{ p.last_name }}</a></td>
+      <td>{{ p.email }}</td>
+      <td>{{ p.phone or 'not on file' }}</td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% else %}
+  <p>No players match that search. Try part of a first name, last name, or email.</p>
+  {% endif %}
+{% endif %}
+{% endblock %}

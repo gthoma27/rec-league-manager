@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}{{ team.name }}{% endblock %}
+{% block content %}
+<h1>{{ team.name }}</h1>
+<p class="muted">{{ team.season }} | {{ team.division }} division</p>
+
+<h2>Roster</h2>
+<div class="actions">
+  <a class="button" href="{{ url_for('roster_add', team_id=team.team_id) }}">Add player to roster</a>
+</div>
+{% if roster %}
+<table>
+  <tr><th class="num">#</th><th>Player</th><th>Captain</th><th>Email</th><th>Phone</th></tr>
+  {% for p in roster %}
+  <tr>
+    <td class="num">{{ p.jersey_number }}</td>
+    <td><a href="{{ url_for('player_detail', player_id=p.player_id) }}">{{ p.first_name }} {{ p.last_name }}</a></td>
+    <td>{{ 'Captain' if p.is_captain else '' }}</td>
+    <td>{{ p.email }}</td>
+    <td>{{ p.phone or 'not on file' }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No players on this team yet.</p>
+{% endif %}
+
+<h2>Schedule and results</h2>
+{% if schedule %}
+<table>
+  <tr><th>Date</th><th>Time</th><th>Venue</th><th></th><th>Opponent</th><th class="num">Score</th><th>Result</th><th></th></tr>
+  {% for g in schedule %}
+  <tr>
+    <td>{{ g.slot_date|nice_date }}</td>
+    <td>{{ g.start_time }}</td>
+    <td>{{ g.venue }}</td>
+    <td>{{ g.home_away }}</td>
+    <td><a href="{{ url_for('team_detail', team_id=g.opponent_id) }}">{{ g.opponent }}</a></td>
+    <td class="num">{% if g.status == 'completed' %}{{ g.goals_for }} - {{ g.goals_against }}{% endif %}</td>
+    <td>{{ g.result }}</td>
+    <td><a href="{{ url_for('game_detail', game_id=g.game_id) }}">Game {{ g.game_id }}</a></td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No games scheduled yet.</p>
+{% endif %}
+{% endblock %}

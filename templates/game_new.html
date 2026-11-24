@@ -1,0 +1,59 @@
+{% extends 'base.html' %}
+{% block title %}Schedule a game{% endblock %}
+{% block content %}
+{% macro team_options(field) %}
+  <option value="">Choose a team</option>
+  {% for division, division_teams in teams|groupby('division') %}
+  <optgroup label="{{ division }}">
+    {% for t in division_teams %}
+    <option value="{{ t.team_id }}" {% if form.get(field) == t.team_id|string %}selected{% endif %}>{{ t.team }}</option>
+    {% endfor %}
+  </optgroup>
+  {% endfor %}
+{% endmacro %}
+
+<h1>Schedule a game</h1>
+<form method="get" action="{{ url_for('game_new') }}" class="inline">
+  <div>
+    <label for="season_pick">Season</label>
+    <select id="season_pick" name="season_id">
+      {% for s in seasons %}
+      <option value="{{ s.season_id }}" {% if s.season_id == season.season_id %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <button type="submit">Change season</button>
+</form>
+
+<div class="box">
+{% if teams|length < 2 %}
+  <p>{{ season.name }} needs at least two teams before a game can be scheduled.</p>
+{% elif not slots %}
+  <p>There are no open time slots during {{ season.name }} ({{ season.start_date|nice_date }} to {{ season.end_date|nice_date }}).</p>
+{% else %}
+  <form method="post" action="{{ url_for('game_new') }}">
+    <input type="hidden" name="season_id" value="{{ season.season_id }}">
+    <div class="field">
+      <label for="home_team_id">Home team</label>
+      <select id="home_team_id" name="home_team_id">{{ team_options('home_team_id') }}</select>
+    </div>
+    <div class="field">
+      <label for="away_team_id">Away team</label>
+      <select id="away_team_id" name="away_team_id">{{ team_options('away_team_id') }}</select>
+      <div class="muted">Both teams have to be in the same division.</div>
+    </div>
+    <div class="field">
+      <label for="slot_id">Time slot</label>
+      <select id="slot_id" name="slot_id">
+        <option value="">Choose an open slot</option>
+        {% for s in slots %}
+        <option value="{{ s.slot_id }}" {% if form.get('slot_id') == s.slot_id|string %}selected{% endif %}>{{ s.slot_date|nice_date }} at {{ s.start_time }}, {{ s.venue }}</option>
+        {% endfor %}
+      </select>
+      <div class="muted">Only open slots during {{ season.name }} are listed. The app also checks that neither team, and none of their players, already has a game at that time.</div>
+    </div>
+    <button type="submit">Schedule game</button>
+  </form>
+{% endif %}
+</div>
+{% endblock %}

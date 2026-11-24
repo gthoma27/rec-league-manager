@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+{% block title %}Reports{% endblock %}
+{% block content %}
+<h1>Standings and top scorers</h1>
+<form method="get" action="{{ url_for('reports') }}" class="inline">
+  <div>
+    <label for="season_id">Season</label>
+    <select id="season_id" name="season_id">
+      {% for s in seasons %}
+      <option value="{{ s.season_id }}" {% if season and s.season_id == season.season_id %}selected{% endif %}>{{ s.name }}</option>
+      {% endfor %}
+    </select>
+  </div>
+  <div>
+    <label for="min_goals">Top scorers with at least</label>
+    <input id="min_goals" name="min_goals" class="small" inputmode="numeric" value="{{ min_goals }}"> goals
+  </div>
+  <button type="submit">Show report</button>
+</form>
+
+{% if season %}
+<div class="box">
+  <strong>{{ season.name }}:</strong>
+  {{ summary.games_completed }} games played, {{ summary.games_upcoming }} upcoming,
+  {{ summary.total_goals }} goals{% if summary.avg_goals is not none %}, {{ '%.2f'|format(summary.avg_goals) }} goals per game{% endif %}.
+</div>
+
+<h2>Standings</h2>
+{% if standings %}
+  {% for division, rows in standings|groupby('division') %}
+  <h3>{{ division }}</h3>
+  <table>
+    <tr><th>Team</th><th class="num">GP</th><th class="num">W</th><th class="num">L</th><th class="num">T</th>
+        <th class="num">GF</th><th class="num">GA</th><th class="num">GD</th><th class="num">Pts</th></tr>
+    {% for r in rows %}
+    <tr>
+      <td><a href="{{ url_for('team_detail', team_id=r.team_id) }}">{{ r.team }}</a></td>
+      <td class="num">{{ r.games_played }}</td>
+      <td class="num">{{ r.wins }}</td>
+      <td class="num">{{ r.losses }}</td>
+      <td class="num">{{ r.ties }}</td>
+      <td class="num">{{ r.goals_for }}</td>
+      <td class="num">{{ r.goals_against }}</td>
+      <td class="num">{{ '%+d'|format(r.goal_diff) if r.goal_diff else 0 }}</td>
+      <td class="num"><strong>{{ r.points }}</strong></td>
+    </tr>
+    {% endfor %}
+  </table>
+  {% endfor %}
+  <p class="muted">3 points for a win, 1 for a tie. Ties in points are broken by goal difference, then goals scored.</p>
+{% else %}
+  <p>{{ season.name }} has no teams yet.</p>
+{% endif %}
+
+<h2>Top scorers</h2>
+{% if scorers %}
+<table>
+  <tr><th>Player</th><th class="num">Games played</th><th class="num">Goals</th><th class="num">Assists</th><th class="num">Goals per game</th></tr>
+  {% for s in scorers %}
+  <tr>
+    <td><a href="{{ url_for('player_detail', player_id=s.player_id) }}">{{ s.player }}</a></td>
+    <td class="num">{{ s.games_played }}</td>
+    <td class="num">{{ s.goals }}</td>
+    <td class="num">{{ s.assists }}</td>
+    <td class="num">{{ '%.2f'|format(s.goals_per_game) }}</td>
+  </tr>
+  {% endfor %}
+</table>
+{% else %}
+<p>No players in {{ season.name }} have {{ min_goals }} or more goals.</p>
+{% endif %}
+{% else %}
+<p>There are no seasons in the database yet.</p>
+{% endif %}
+{% endblock %}

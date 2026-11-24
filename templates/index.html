@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<h1>Rec League Manager</h1>
+<p class="muted">Seasons, teams, rosters, schedules, referees, and results for one rec soccer league.</p>
+
+<div class="box">
+  <h2>What you can do</h2>
+  <ol>
+    <li><a href="{{ url_for('players') }}">Search players</a> by name or email, then open a player to see their teams and stats.</li>
+    <li><a href="{{ url_for('teams') }}">View a team</a> to see its roster and its full schedule with results.</li>
+    <li><strong>Add a player to a roster</strong> with a jersey number. Open a team and click "Add player to roster".</li>
+    <li><strong>Reschedule or cancel a game.</strong> Open an upcoming game from <a href="{{ url_for('games') }}">Games</a> and click "Reschedule or cancel".</li>
+    <li><a href="{{ url_for('reports') }}">See standings and top scorers</a> for any season.</li>
+    <li><strong>Enter a final score and player stats.</strong> Open an upcoming game and click "Enter final score".</li>
+  </ol>
+  <p>You can also <a href="{{ url_for('game_new') }}">schedule a new game</a> in an open time slot,
+     and assign referees from any upcoming game's page.</p>
+</div>
+{% endblock %}
