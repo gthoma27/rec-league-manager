@@ -1,0 +1,5 @@
+# Keep the shell script's line endings as LF, even when cloned on Windows,
+# so "bash run_queries.sh" works in WSL and Git Bash.
+* text=auto
+*.sh text eol=lf
+*.png binary
