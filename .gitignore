@@ -1,0 +1,21 @@
+# Database file built by init_db.py or run_queries.sh.
+# It is rebuilt from schema.sql and insert_data.sql, so it is not committed.
+*.db
+*.db-journal
+*.db-wal
+*.db-shm
+
+# Local settings (copy .env.example to .env). Never commit real values.
+.env
+
+# Python
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# Editor and OS files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
